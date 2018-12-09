@@ -12,6 +12,10 @@
 	<packaging>jar</packaging>
 	<name>spring-cloud-provider</name>
 
+    <properties>
+        <start-class>com.yang.springcloud.provider.SpringCloudProviderApplication</start-class>
+    </properties>
+
 	<dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

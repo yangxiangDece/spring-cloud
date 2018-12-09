@@ -10,10 +10,8 @@ public class UserController {
 
     private final static Logger LOGGER= LoggerFactory.getLogger(UserController.class);
 
-
     @GetMapping(value = "/hello")
     public String hello(){
-        LOGGER.info("/hello,host:{},service_id:{}");
         return "Hello World";
     }
 }
