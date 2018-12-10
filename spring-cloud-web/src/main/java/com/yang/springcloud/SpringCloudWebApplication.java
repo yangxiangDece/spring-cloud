@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
  *      Ribbon的服务实例清单RibbonServerList会被DiscoveryEnableNIWSServerList重写，扩展成Eureka注册中心中获取服务端列表。同时它会用NIEWSDiscoveryPing来取代
  *      IPing，它将职责委托给Eureka来确定服务端是否已经启动。
  * 2、如果注册中心是Eureka，推荐使用注解：@EnableEurekaClient；如果注册中心是其他的，则使用：@EnableDiscoveryClient
- * 3、服务治理机制：
+ * 3、Spring Cloud Eureka：
  *      a、服务提供者
  *          1、服务注册：服务提供者在启动的时候通过发送REST请求的方式将自己注册到Eureka Server上，同时带上自身服务的一些元数据信息。Eureka Server接收到这个REST
  *              请求之后，将元数据信息存储在一个双层Map中，其中第一层的key是服务名，第二层的key是具体服务的实例名。
@@ -42,8 +42,46 @@ import org.springframework.web.client.RestTemplate;
  *              关闭服务等，实际在生产环境通常是由于网络不稳定导致），Eureka Server会将当前的实例注册信息保护起来，让这些实例不会过期，尽可能的保护这些实例，
  *              但是在保护这段时间，如果实例出现了问题，那么调用者拿到了已经不存在的实例，出现调用失败，所以客户端必须要有容错机制，比如请求重试、断路器等。
  *              在本地开发时，可以通过eureka.server.enable-self-preservation=false参数来关闭保护机制，确保注册中心可以将不可用的实例正确剔除。
- * 4、源码分析：
- *      a、
+ * 4、eureka源码分析：
+ *      a、Region、Zone：一个服务只有一个Region，一个Region可以有多个Zone。当我们使用Ribbon来实现服务调用时，对于Zone的设置可以在负载均衡时实现区域亲和特性：Ribbon的默认策略
+ *          会优先访问同客户端处于一个Zone中的服务端实例，只有当同一个Zone中没有可用服务端实例的时候才访问其他Zone中的实例。所以通过Zone属性的定义，配合实际部署的物理结构，我们
+ *          就可以有效地设计出对区域特性故障的容错集群。
+ *      b、服务注册：通过EndpointUtils.getServiceUrlsFromConfig(EurekaClientConfig clientConfig, String instanceZone, boolean preferSameZone)解析Region、Zone等信息，
+ *          如果没有配置Region、Zone，那么就是用默认的defaultZone，这就是我们自己配置的...serverUrls.defaultZone.
+ *          默认serverUrls.defaultZone：public static final String DEFAULT_URL = "http://localhost:8761" + DEFAULT_PREFIX + "/";
+ *          最终会调用DiscoveryClient类构造方法 -> initScheduledTasks() -> InstanceInfoReplicator类的run()方法 -> discoveryClient.register() ->
+ *          httpResponse = eurekaTransport.registrationClient.register(instanceInfo); 会把配置的这些信息封装成一个instanceInfo对象，通过REST请求发送给Eureka服务器
+ *      c、服务续约：服务续约和服务注册在同一个方法initScheduledTasks(),同一个if判断中if (clientConfig.shouldRegisterWithEureka()) {
+ *              int renewalIntervalInSecs = instanceInfo.getLeaseInfo().getRenewalIntervalInSecs();参数用于定义服务续约任务的调用间隔时间，默认30秒。即：多久调用一次心跳
+ *              int expBackOffBound = clientConfig.getHeartbeatExecutorExponentialBackOffBound();参数用于定义服务失效时间，默认90秒，即：如果Eureka Server在一定时间内（默认90秒）
+ *          }
+ *      d、服务获取：initScheduledTasks() -> if (clientConfig.shouldFetchRegistry()) {
+ *              //服务列表清单缓存更新间隔时间
+ *              int registryFetchIntervalSeconds = clientConfig.getRegistryFetchIntervalSeconds();即：eureka.client.register-fetch-interval-seconds=30，默认值30秒。
+ *          }
+ *      e、eureka服务注册中心：InstanceRegistry类的register(final InstanceInfo info, final boolean isReplication) ->
+ *          1、handleRegistration();将新服务注册的事件传播出去，然后调用父类的注册方法
+ *          2、super.register(info, isReplication); 注册中心存储了两层Map结构，第一层key存储服务名(即：eureka.instance.appName或spring.application.name)，第二层key存储实例名：
+ *              InstanceInfo中的instanceId属性，存储MAP结构如下：
+ *              ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>> registry= new ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>>();
+ *      f、配置信息：
+ *          1、服务注册中心配置：org.springframework.cloud.netflix.eureka.server.EurekaServerConfigBean，配置都是以eureka.server开头
+ *          2、服务注册类配置：org.springframework.cloud.netflix.eureka.EurekaClientConfigBean，配置都是以eureka.client开头
+ *          3、服务实例类配置：org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean，配置都是以eureka.instance开头
+ *      g、端点配置：homePageUrl、statusPageUrl、healthCheckUrl，它们分别代表了应用主页的URL、状态页的URL、健康检查的URL。其中，状态页和健康检查的URL在Spring Cloud Eureka中默认
+ *          使用了spring-boot-actuator模块提供的/info断点和/health端点。为了服务的正常运作，我们必须确保Eureka客户端的/health端点在发送元数据的时候，是一个能够被注册访问到的地址，
+ *          否则服务注册中心不会根据应用的健康检查来更改状态。
+ *          在大多数情况下我们不需更改这些配置，但是有些情况下需要更改，比如，为应用添加了context-path，前缀发生变化，就需要更改配置
+ *              management.server.servlet.context-path=/hello
+ *              eureka.instance.statusPageUrlPath=${management.server.servlet.context-path}/info
+ *              eureka.instance.healthCheckUrlPath=${management.server.servlet.context-path}/health
+ *          上面的配置都是使用的相对路径来配置的，当客户端以HTTPS的方式来暴露服务和监控端点时，需要更改配置
+ *              eureka.instance.statusPageUrlPath=${eureka.instance.hostname}/info
+ *              eureka.instance.healthCheckUrl=${eureka.instance.hostname}/health
+ *              eureka.instance.homePageUrl=${eureka.instance.hostname}/
+ * 5、Spring Cloud Ribbon
+ *      a、配置类：org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration，自动配置类
+ *      b、客户端负载均衡器的自动化配置类：org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration
  *
  *
  *

@@ -1,9 +1,12 @@
 server:
   port: 9000
-
 eureka:
   instance:
     hostname: localhost #eureka服务端的实例名称
+
+    #实例名，即InstanceInfo中的instanceId参数，它是区分同一服务中不同实例的唯一标识。
+    # 在Netflix Eureka的原生实现中，实例名采用主机名作为默认值，这样的设置使得在同一主机上无法启动多个相同的实例。所以可以采用这种方式
+#    instance-id: ${spring.application.name}:${random.int}
   client:
     register-with-eureka: false #如果应用为注册中心，所以设置为false，代表不向注册中心注册自己
     fetch-registry: false #由于注册中心的职责就是维护服务实例，它并不需要去检索服务，所以也设置为false

@@ -14,7 +14,8 @@ public class UserController {
     @GetMapping(value = "/ribbon-consumer")
     public String helloConsumer(){
 
-        return restTemplate.getForEntity("http://spring-cloud-provider/hello",String.class).getBody();
+//        return restTemplate.getForEntity("http://spring-cloud-provider/hello?id={1}",String.class,"12").getBody();
+        return restTemplate.getForObject("http://spring-cloud-provider/hello?id={1}",String.class,"12");
     }
 
 }
