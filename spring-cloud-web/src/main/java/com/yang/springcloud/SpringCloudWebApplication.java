@@ -82,6 +82,52 @@ import org.springframework.web.client.RestTemplate;
  * 5、Spring Cloud Ribbon
  *      a、配置类：org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration，自动配置类
  *      b、客户端负载均衡器的自动化配置类：org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration
+ *      c、在引入Spring Cloud Ribbon的依赖之后，就能够自动化构建下面这些接口的实现：
+ *          1、IClientConfig：Ribbon的客户端配置，默认实现：com.netflix.client.config.DefaultClientConfigImpl
+ *          2、IRule：Ribbon的负载均衡策略，默认实现：com.netflix.loadbalancer.ZoneAvoidanceRule。该策略能够在多区域下选出最佳的实例进行访问。
+ *          3、IPing：Ribbon的实例检查策略，默认实现：com.netflix.loadbalancer.NoOpPing。该检查策略是一个特殊的实现，实际上它并不会检查实例是否可用，而是始终返回true，
+ *              默认认为所有服务实例都是可用的。
+ *          4、ServerList<Server>：服务实例清单的维护机制，默认实现：com.netflix.loadbalancer.ConfigurationBasedServerList。
+ *          5、ServerListFilter<Server>：服务实例清单过滤机制，默认实现：org.springframework.cloud.netflix.ribbon.ZonePreferenceServerListFilter。
+ *              该策略能够优先过滤出与请求调用放处于同区域的服务实例。
+ *          6、ILoadBalancer：负载均衡器，默认实现：com.netflix.loadbalancer.ZoneAwareLoadBalancer。它具备了区域感知的能力。
+ *          这些自动化配置内容仅在没有引入Spring Cloud Eureka等服务治理框架时如此，在同时引入了Eureka和Ribbon依赖时，自动化配置会有一些不同。
+ *          针对一些个性化需求，我们也可以自定义自己的默认实现，只需在Spring Boot应用中创建对应的实现实例就能覆盖这些默认的配置实现。
+ *              比如下面，由于创建了PingUrl,所以默认的NoOpPing就不会被创建：
+ *              @Bean
+ *              public IPing ribbonPing(IClientConfig config){
+ *                  return new PingUrl();
+ *              }
+ *          另外，也可以通过@RibbonClient注解来实现更细粒度的客户端配置。
+ *      e、在Camden版本中可以使用配置的方式来实现：
+ *          1、在application.properties配置中增加：
+ *              hello-service.ribbon.NFLoadBalancerPingClassName=com.netfilx.loadbalancer.PingUrl  这个配置和上面的实现效果一样
+ *              其中hello-service为服务名，NFLoadBalancerPingClassName参数用来指定具体的IPing接口实现类，在Camden版本中，Spring Cloud Ribbon新增了一个
+ *              org.springframework.cloud.netflix.ribbon.PropertiesFactory类，可以动态地为RibbonClient创建这些接口的实现：
+                    public PropertiesFactory() {
+                        classToProperty.put(ILoadBalancer.class, "NFLoadBalancerClassName");
+                        classToProperty.put(IPing.class, "NFLoadBalancerPingClassName");
+                        classToProperty.put(IRule.class, "NFLoadBalancerRuleClassName");
+                        classToProperty.put(ServerList.class, "NIWSServerListClassName");
+                        classToProperty.put(ServerListFilter.class, "NIWSServerListFilterClassName");
+                    }
+ *      d、Ribbon与Eureka结合：
+ *          1、当Spring Cloud的应用中同时加入Eureka和Ribbon依赖时，会触发Eureka中实现对Ribbon的自动化配置。
+ *          2、ServerList的维护机制实现将被覆盖，为：com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList，该实现会将服务清单交给Eureka的服务治理机制来进行维护。
+ *          3、IPing的实现将被覆盖，为：com.netflix.niws.loadbalancer.NIWSDiscoveryPing，该实现也将实例检查的任务交给了服务治理框架来进行维护。
+ *          4、默认情况下，用于获取实例请求的ServerList接口实现将采用Spring Cloud Eureka中封装的org.springframework.cloud.netflix.ribbon.eureka.DomainExtractingServerList，
+ *              其目的是为了让实例维护策略更加通用，所以将物理元数据来进行负载均衡，而不是使用原生的AWS AMI元数据。
+ *          5、在Eureka结合下的配置方式：eureka.instance.metadataMap.zone=shanghai
+ *          6、在Eureka和Ribbon结合的工程中，也可以通过参数配置来禁用Eureka堆Ribbon服务实例的维护实现：ribbon.eureka.enable=true，
+ *              那么就需要我们按照之前的配置方式配置了，<client>.ribbon.listOfServers=...
+ *      f、重试机制：
+ *          1、Spring Cloud Eureka实现的服务治理机制强调了CAP原理中的AP，即可用性与可靠性，Eureka为了实现更高的服务可用性，牺牲了一定的一致性。
+ *          2、Spring Cloud整合了Spring Retry来增强RestTemplate的重试能力，配置如下：
+ *              spring.cloud.loadbalancer.retry.enabled=true; 开启重试价值，默认是关闭的。可查看配置类：LoadBalancerRetryProperties
+ * 6、Spring Cloud Hystrix
+ *      a、
+ *
+ *
  *
  *
  *
