@@ -2,8 +2,11 @@ package com.yang.springcloud;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.SpringCloudApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
@@ -125,7 +128,15 @@ import org.springframework.web.client.RestTemplate;
  *          2、Spring Cloud整合了Spring Retry来增强RestTemplate的重试能力，配置如下：
  *              spring.cloud.loadbalancer.retry.enabled=true; 开启重试价值，默认是关闭的。可查看配置类：LoadBalancerRetryProperties
  * 6、Spring Cloud Hystrix
- *      a、
+ *      a、@SpringBootApplication注解涵盖了：@SpringBootApplication、@EnableDiscoveryClient、@EnableCircuitBreaker，说明一个Spring Cloud标准应用应该包含服务发现以及断路器
+ * 7、Spring Cloud Feign
+ *      a、Feign功能包含了Ribbon与Hystrix
+ *      b、在@FeignClient注解标注的接口中定义的方法，@RequestParam、@RequestHeader等可以指定参数的名称，它们的value不能少，否则会抛出IllegalStateException异常，value属性不能为空。
+ *      c、继承特性：在@FeignClient注解标注的接口中，这里的方法服务提供者的Controller一致，为了避免重复的代码，我们可以在公共api中定义接口以及实现类，然后消费者的接口中只需要，创建一个
+ *          接口，然后标注@FeignClient注解，继承公共api中的接口即可。
+ * 8、
+ * 9、
+ * 10、
  *
  *
  *
@@ -133,8 +144,12 @@ import org.springframework.web.client.RestTemplate;
  *
  *
  */
+
+//@SpringCloudApplication //这个注解 涵盖了下面这三个注解，可以直接只是用下面这一个，说明一个Spring Cloud标准应用应该包含服务发现以及断路器
 @SpringBootApplication
-@EnableDiscoveryClient
+@EnableDiscoveryClient //启用注册服务与发现服务
+//@EnableCircuitBreaker  //开启熔断机制
+@EnableFeignClients //Feign功能包含了Ribbon与Hystrix
 public class SpringCloudWebApplication {
 
 	public static void main(String[] args) {
