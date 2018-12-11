@@ -152,8 +152,34 @@ import org.springframework.web.client.RestTemplate;
  *              feign.compression.request.size=2048
  *              上面的两个参数均为默认值
  * 8、Spring Cloud Zuul
- *      a、
- * 9、
+ *      # 面向服务的路由
+        zuul.routes.api-a.path=/api-a/*
+        zuul.routes.api-a.serviceId=spring-cloud-provider
+
+        zuul.routes.api-b.path=/api-b/*
+        zuul.routes.api-b.serviceId=spring-cloud-consumer
+ *      请求过滤，Zuul允许开发者在API网关上通过定义过滤器来实现对请求的拦截与过滤，继承ZuulFilter，实现其4个抽象方法
+ *          1、filterType()：过滤器类型，它决定过滤器在请求的哪个生命周期中执行。pre：表示在请求路由之前执行。
+ *          2、filterOrder()：过滤器的执行顺序。当请求在一个阶段中存在多个过滤器时，需要根据该方法返回的值来依次执行。
+ *          3、shouldFilter()：判断该过滤器是否需要执行，这里我们直接返回了true，因此该过滤器对所有请求都会生效。实际应用中我们可以利用该函数来指定过滤器的有效范围。
+ *          4、run()：过滤器的具体逻辑，这里我们通过ctx.setSendZuulResponse(false);令zuul过滤该请求，不对其进行路由，也可以通过ctx.setResponseBody(body)对返回的body内容进行编辑等。
+ *          需要将AccessFilter注册到容器
+ *      1、忽略表达式，如果不希望过滤/hello接口被路由，配置如下：
+ *          zuul.ignored-patterns=/ * * /hello/**
+ *          zuul.routes.api-a.path=/api-a/**
+ *          zuul.routes.api-a.serviceId=hello-service
+ *      2、路由前缀：如果希望为网关上的路由规则增加/api前缀，可以在配置文件中增加：zuul.prefix=/api
+ *          代理前缀会默认从路径中移除，可以配置:zuul.stripPrefix=false来关闭该移除代理前缀的动作
+ *          通过zuul.routes.<route>.strip-prefix=true来对指定路由关闭移除代理前缀的动作
+ *      3、本地跳转
+ *      4、Cookie与头信息：默认情况下，Spring Cloud Zuul在请求路由时，会过滤掉HTTP请求头信息中的一些敏感信息，防止它们被传递到下游的外部服务器。默认的敏感头信息通过
+ *          zuul.sensitive-headers参数定义，包括Cookie、Set-Cookie、Authorization三个属性，解决办法，增加配置：2种方式
+ *              zuul.routes.<router>.sensitive-headers=true     方法一：对指定路由开启自定义敏感头
+ *              zuul.routes.<router>.sensitive-headers=         方法二：将指定路由的敏感头设置为空
+ *      5、过滤器：
+ *          a、
+ *
+ *
  * 10、
  *
  *
