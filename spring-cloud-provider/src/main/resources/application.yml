@@ -3,6 +3,9 @@ eureka:
     service-url:
 #      defaultZone: http://localhost:9091/eureka/,http://localhost:9092/eureka/
       defaultZone: http://localhost:9000/eureka/
+  instance:
+    instance-id: spring-cloud-provider_8801
+    prefer-ip-address: true #访问路径可以显示IP地址
 spring:
   application:
     name: spring-cloud-provider

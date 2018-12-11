@@ -15,12 +15,12 @@ public class UserController {
     @Autowired
     private UserServiceFeign userServiceFeign;
 
-    @GetMapping(value = "/ribbon-consumer")
+    @GetMapping(value = "/consumer")
     public String helloConsumer(){
         return userServiceRibbon.hello("12");
     }
 
-    @GetMapping(value = "/ribbon-consumer-feign")
+    @GetMapping(value = "/consumer-feign")
     public String helloConsumerFeign(){
         return userServiceFeign.hello("12");
     }
