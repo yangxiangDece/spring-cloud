@@ -134,7 +134,25 @@ import org.springframework.web.client.RestTemplate;
  *      b、在@FeignClient注解标注的接口中定义的方法，@RequestParam、@RequestHeader等可以指定参数的名称，它们的value不能少，否则会抛出IllegalStateException异常，value属性不能为空。
  *      c、继承特性：在@FeignClient注解标注的接口中，这里的方法服务提供者的Controller一致，为了避免重复的代码，我们可以在公共api中定义接口以及实现类，然后消费者的接口中只需要，创建一个
  *          接口，然后标注@FeignClient注解，继承公共api中的接口即可。
- * 8、
+ *      d、由于Spring Cloud Feign的客户端负载均衡是通过Spring Cloud Ribbon实现的，所以我们可以直接配置Ribbon客户端的方式来自定义各个服务客户端调用的参数。
+ *          spring-cloud-provider.ribbon.ConnectionTimeout=500
+ *          spring-cloud-provider.ribbon.readTimeout=2000
+ *          spring-cloud-provider.ribbon.MaxAutoRetries=2
+ *      e、Ribbon的超时与Hystrix的超时是两个概念，一般是需要让Hystrix的超时时间大于Ribbon的超时时间，否则Hystrix命令超时后，该命令直接熔断，重试机制就没有任何意义了。
+ *      f、对于Hystrix的全局配置同Spring Cloud Ribbon的全局配置一致，直接使用它的默认配置前缀hystrix.command.default就可以设置，比如设置全局的超时时间：
+ *          hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=5000
+ *          另外，在对Hystrix进行配置之前，我们需要确认feign.hystrix.enabled参数没有被设置为false，否则该参数设置会关闭Feign客户端的Hystrix支持。
+ *          可以通过feign.hystrix.enabled=false来关闭Hystrix功能，或者使用hystrix.command.default.execution.timeout.enabled=false来关闭熔断功能
+ *      g、请求压缩：Spring Cloud Feign支持对请求与响应进行GZIP压缩，以减少通信过程中的性能损耗。开启请求与响应的压缩功能：
+ *          feign.compression.request.enabled=true
+ *          feign.compression.response.enabled=true
+ *          可以设置请求压缩的大小下限制，只有超过这个大小的请求才能对其进行压缩：
+ *              feign.compression.request.enabled=true
+ *              feign.compression.request.min-types=text/html,application/xml,application/json
+ *              feign.compression.request.size=2048
+ *              上面的两个参数均为默认值
+ * 8、Spring Cloud Zuul
+ *      a、
  * 9、
  * 10、
  *
