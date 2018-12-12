@@ -85,7 +85,17 @@ import org.springframework.web.client.RestTemplate;
  *              eureka.instance.healthCheckUrl=${eureka.instance.hostname}/health
  *              eureka.instance.homePageUrl=${eureka.instance.hostname}/
  * 5、Spring Cloud Ribbon
- *      a、配置类：org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration，自动配置类
+ *      0a、流程：
+ *          1、客户端负载均衡自动配置类：LoadBalancerAutoConfiguration主要做的三件事：
+ *              a、创建了一个LoadBalancerInterceptor的Bean，用于实现对客户端发起请求时进行拦截，以实现客户端的负载均衡。
+ *              b、创建了一个RestTemplateCustomizer的Bean，用于给RestTemplate增加LoadBalancerInterceptor拦截器。
+ *              c、维护了一个被@LoadBalanced注解修饰的RestTemplate对象列表，并在这里进行初始化，通过调用RestTemplateCustomizer的实例来给需要客户端负载均衡的RestTemplate增加
+ *                  LoadBalancerInterceptor拦截器。
+ *          2、当一个被@LoadBalanced注解修饰的RestTemplate对象向外发起HTTP请求时，会被LoadBalancerInterceptor的intercept方法拦截。
+ *          3、final URI originalUri = request.getURI();String serviceName = originalUri.getHost();因为使用RestTemplate时采用服务名作为host来发起访问，所以可以直接获取的服务名。
+ *          4、调用execute函数去根据服务名来选择实例并发起实际的请求。
+ *          5、LoadBalancerClient的实现类：RibbonLoadBalancerClient 中的 execute()方法
+ *      a、Ribbon自动配置类：RibbonClientConfiguration
  *      b、客户端负载均衡器的自动化配置类：org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration
  *      c、在引入Spring Cloud Ribbon的依赖之后，就能够自动化构建下面这些接口的实现：
  *          1、IClientConfig：Ribbon的客户端配置，默认实现：com.netflix.client.config.DefaultClientConfigImpl
@@ -128,7 +138,7 @@ import org.springframework.web.client.RestTemplate;
  *      f、重试机制：
  *          1、Spring Cloud Eureka实现的服务治理机制强调了CAP原理中的AP，即可用性与可靠性，Eureka为了实现更高的服务可用性，牺牲了一定的一致性。
  *          2、Spring Cloud整合了Spring Retry来增强RestTemplate的重试能力，配置如下：
- *              spring.cloud.loadbalancer.retry.enabled=true; 开启重试价值，默认是关闭的。可查看配置类：LoadBalancerRetryProperties
+ *              spring.cloud.loadbalancer.retry.enabled=true; 开启重试机制，默认是关闭的。可查看配置类：LoadBalancerRetryProperties
  * 6、Spring Cloud Hystrix
  *      a、@SpringBootApplication注解涵盖了：@SpringBootApplication、@EnableDiscoveryClient、@EnableCircuitBreaker，说明一个Spring Cloud标准应用应该包含服务发现以及断路器
  * 7、Spring Cloud Feign
