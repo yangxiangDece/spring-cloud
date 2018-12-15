@@ -192,6 +192,13 @@ import org.springframework.web.client.RestTemplate;
  *
  * zookeeper保证CP（强一致性和可靠性），zookeeper在信息leader选举的时候，选举时间很长，选举期间整个zookeeper集群都不可用，这就导致在选举期间注册服务瘫痪。
  *
+ * application.yml是用户级的资源配置项；bootstrap.yml是系统级的，优先级更高
+ *      Spring Cloud会创建一个Bootstrap Context，作为Spring应用的Application Context的父上下文。初始化的时候，Bootstrap Context负责从外部源加载配置属性
+ *      并解析配置。这两个上下共享一个从外部获取的Environment。Bootstrap属性有高优先级，默认情况下，它们不会被本地配置覆盖。Bootstrap Context和Application Context
+ *      有着不同的约定，所以新增了一个bootstreap.yml文件，保证Bootstrap Context和Application Context配置的分离。
+ *
+ * Spring Cloud Hystrix：服务降级、服务熔断、线程和信号隔离、请求缓存、请求合并、服务监控
+ *
  */
 
 //@SpringCloudApplication //这个注解 涵盖了下面这三个注解，可以直接只是用下面这一个，说明一个Spring Cloud标准应用应该包含服务发现以及断路器
