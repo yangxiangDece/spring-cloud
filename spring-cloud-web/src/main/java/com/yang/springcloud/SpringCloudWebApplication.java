@@ -171,6 +171,11 @@ import org.springframework.web.client.RestTemplate;
         zuul.routes.api-b.serviceId=spring-cloud-consumer
  *      请求过滤，Zuul允许开发者在API网关上通过定义过滤器来实现对请求的拦截与过滤，继承ZuulFilter，实现其4个抽象方法
  *          1、filterType()：过滤器类型，它决定过滤器在请求的哪个生命周期中执行。pre：表示在请求路由之前执行。
+ *              pre：可以在请求被路由之前调用
+ *              routing：在路由请求时被调用
+ *              post：在routing和error过滤器之后被调用
+ *              error：处理请求时发生错误时被调用
+ *              调用流程：pre -> routing -> post -> 上面三个发生异常进入：error -> post
  *          2、filterOrder()：过滤器的执行顺序。当请求在一个阶段中存在多个过滤器时，需要根据该方法返回的值来依次执行。
  *          3、shouldFilter()：判断该过滤器是否需要执行，这里我们直接返回了true，因此该过滤器对所有请求都会生效。实际应用中我们可以利用该函数来指定过滤器的有效范围。
  *          4、run()：过滤器的具体逻辑，这里我们通过ctx.setSendZuulResponse(false);令zuul过滤该请求，不对其进行路由，也可以通过ctx.setResponseBody(body)对返回的body内容进行编辑等。
@@ -187,8 +192,14 @@ import org.springframework.web.client.RestTemplate;
  *          zuul.sensitive-headers参数定义，包括Cookie、Set-Cookie、Authorization三个属性，解决办法，增加配置：2种方式
  *              zuul.routes.<router>.sensitive-headers=true     方法一：对指定路由开启自定义敏感头
  *              zuul.routes.<router>.sensitive-headers=         方法二：将指定路由的敏感头设置为空
- *      5、过滤器：
- *          a、
+ * 9、Spring Cloud Config：
+ *      a、客户端config server、服务端config client
+ *      b、Git仓库、配置多个仓库
+ *      c、本地仓库，config server通过git clone 将配置信息存与本地，起到缓存作用，即使git服务端无法访问时，依然可以从Config Server中的缓存中获取信息
+ *      d、健康监测、安全保护（通过加密解密）、动态刷新、高可用
+ * 10、Spring Cloud Bus：消息总线
+ *      a、Spring Cloud Bus只支持两款中间件产品：RabbitMQ和Kafka
+ *
  *
  * zookeeper保证CP（强一致性和可靠性），zookeeper在信息leader选举的时候，选举时间很长，选举期间整个zookeeper集群都不可用，这就导致在选举期间注册服务瘫痪。
  *
