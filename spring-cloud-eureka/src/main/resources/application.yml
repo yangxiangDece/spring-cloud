@@ -12,6 +12,8 @@ eureka:
     fetch-registry: false #由于注册中心的职责就是维护服务实例，它并不需要去检索服务，所以也设置为false
     service-url:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/ #设置与Eureka Server交互的地址，查询服务和注册服务都需要依赖这个地址
+  server:
+    enable-self-preservation: false #本地调试 可以关闭自我保护机制 默认开启
 spring:
   application:
     name: eureka-server

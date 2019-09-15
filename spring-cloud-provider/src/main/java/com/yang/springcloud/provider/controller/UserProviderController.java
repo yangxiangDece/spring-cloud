@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class UserController {
+public class UserProviderController {
 
-    private final static Logger LOGGER= LoggerFactory.getLogger(UserController.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(UserProviderController.class);
 
     @GetMapping(value = "/hello")
-    public String hello(@RequestParam(value = "id") String id){
-        LOGGER.info("hello invoke,params id:{}",id);
+    public String hello(@RequestParam(value = "id", required = false) String id) {
+        LOGGER.info("hello invoke,params id:{}", id);
         return "Hello World";
     }
 }
