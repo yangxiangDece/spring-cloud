@@ -20,10 +20,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="spring-cloud-service" />
-    <orderEntry type="module" module-name="spring-cloud-dao" />
-    <orderEntry type="module" module-name="spring-cloud-api" />
-    <orderEntry type="module" module-name="spring-cloud-common" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:2.1.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:2.1.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:2.1.1.RELEASE" level="project" />
@@ -107,7 +103,7 @@
     <orderEntry type="library" name="Maven: org.springframework.cloud:spring-cloud-netflix-archaius:2.0.0.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: commons-configuration:commons-configuration:1.8" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework.cloud:spring-cloud-starter-netflix-ribbon:2.0.2.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.cloud:spring-cloud-starter-netflix-ribbon:2.0.0.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: com.netflix.ribbon:ribbon:2.2.5" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.netflix.ribbon:ribbon-transport:2.2.5" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: io.reactivex:rxnetty-contexts:0.4.9" level="project" />
@@ -115,6 +111,14 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.netflix.hystrix:hystrix-core:1.5.12" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.hdrhistogram:HdrHistogram:2.1.9" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: io.reactivex:rxnetty:0.4.9" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-codec-http:4.1.31.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-codec:4.1.31.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-transport-native-epoll:4.1.31.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-common:4.1.31.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-buffer:4.1.31.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-transport-native-unix-common:4.1.31.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-transport:4.1.31.Final" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-resolver:4.1.31.Final" level="project" />
     <orderEntry type="library" name="Maven: com.netflix.ribbon:ribbon-core:2.2.5" level="project" />
     <orderEntry type="library" name="Maven: com.netflix.ribbon:ribbon-httpclient:2.2.5" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: commons-collections:commons-collections:3.2.2" level="project" />

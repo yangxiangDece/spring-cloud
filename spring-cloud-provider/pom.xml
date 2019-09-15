@@ -1,35 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
         <groupId>com.spring</groupId>
         <artifactId>spring-cloud</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-	</parent>
+    </parent>
     <artifactId>spring-cloud-provider</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	<name>spring-cloud-provider</name>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>spring-cloud-provider</name>
 
     <properties>
         <start-class>com.yang.springcloud.provider.SpringCloudProviderApplication</start-class>
     </properties>
 
-	<dependencies>
-        <dependency>
-            <groupId>com.spring</groupId>
-            <artifactId>spring-cloud-service</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
+    <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>
